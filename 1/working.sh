@@ -4,6 +4,8 @@ source portal-app-variable.yml
 
 PORTALAPPNAME=portal-app-1.2.0
 
+CURRENTDIRCTORY=$pwd
+
 #########################################
 # portal-app 1.2.0 download
 ## portal-app zip downloaded check
@@ -28,13 +30,6 @@ echo "portal-app unzip"
 
 #########################################
 #config change
-
-#SYSTEM_DOMIAN=
-#grep -r "system_domain" $COMMON_VARS_PATH | cut -c ' ' -f 2
-#DOMAIN=$(grep -r "system_domain" $COMMON_VARS_PATH | cut -d ':' -f 2 | cut -f 1 | sed -e 's/ //g')
-#echo $SYSTEM_DOMAIN
-#find $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/1.applyChangeVariable-change.sh -type f | xargs sed -i -e "s/DOMAIN=<SYSTEM_DOMAIN>/DOMAIN=$DOMAIN/g"
-
 
 #1.applyChangeVariable-change.sh
 ## COMMON VARIABLE
@@ -221,3 +216,17 @@ find $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/2.portalContainerPush-change.s
 
 # PORTAL_SECURITY_GROUP_NAME
 find $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/2.portalContainerPush-change.sh -type f | xargs sed -i -e "s/PORTAL_SECURITY_GROUP_NAME=<PORTAL_SECURITY_GROUP_NAME>/PORTAL_SECURITY_GROUP_NAME=$PORTAL_SECURITY_GROUP_NAME/g"
+
+#########################################
+
+cd $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/
+
+## variable change
+source 1.applyChangeVariable-change.sh
+
+## app push
+source 2.portalContainerPush-change.sh
+
+#########################################
+
+cd $CURRENTDIRCTORY
