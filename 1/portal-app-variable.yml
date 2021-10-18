@@ -1,17 +1,10 @@
 #!/bin/bash
   
 ##FILE PATH
-#COMMON_VARS_PATH=~/workspace/paasta/deployment/common/common_vars.yml
-#PORTAL_INFRA_VARS_PATH=~/workspace/paasta/deployment/portal-deployment/portal-container-infra/vars.yml
+COMMON_VARS_PATH=~/workspace/paasta/deployment/common/common_vars.yml
+PORTAL_INFRA_VARS_PATH=~/workspace/paasta/deployment/portal-deployment/portal-container-infra/vars.yml
 
-#PORTAL_APP_WORKING_DIRECTORY=~/workspace/paasta/release/portal
-
-
-COMMON_VARS_PATH=~/workspace/paasta-5.6/deployment/common/common_vars.yml
-PORTAL_INFRA_VARS_PATH=~/workspace/paasta-5.6/deployment/portal-deployment-5.2.0-simplification/portal-container-infra/vars.yml
-
-PORTAL_APP_WORKING_DIRECTORY=~/workspace/paasta-5.6/deployment/portal-deployment-5.2.0-simplification/portal-container-infra
-
+PORTAL_APP_WORKING_DIRECTORY=~/workspace/paasta/release/portal
 
 ##PORTAL VARIABLE
 USER_APP_SIZE_MB=0
