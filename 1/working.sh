@@ -3,18 +3,19 @@
 source portal-app-variable.yml
 
 PORTALAPPNAME=portal-app-1.2.0
+PORTALAPPDOWNLOADLINK=https://nextcloud.paas-ta.org/index.php/s/cRHds5osDff5G3f/download
 
 CURRENTDIRCTORY=$pwd
 
 #########################################
-# portal-app 1.2.0 download
+# portal-app download
 ## portal-app zip downloaded check
 if [ -e $PORTALAPPNAME.zip ]; then
         echo "portal-app zip file exists - download skip"
 else
         echo "portal-app zip file not exists - download zip file "
-        ## portal-app.1.2.0.zip download
-        wget --content-disposition https://nextcloud.paas-ta.org/index.php/s/cRHds5osDff5G3f/download
+        ## portal-app wget download
+        wget --content-disposition $PORTALAPPDOWNLOADLINK
 fi
 
 #########################################
@@ -22,11 +23,11 @@ fi
 if [ -d $PORTALAPPNAME ]; then
         echo "portal-app folder exists - delete folder"
         ## existing portal-app directory delete
-        #ll | grep "portal-app-*" | grep ^d | awk '{print $NF}' | xargs rm -rf
+        ll | grep "$PORTALAPPNAME" | grep ^d | awk '{print $NF}' | xargs rm -rf
 fi
 ## portal-app unzip
 echo "portal-app unzip"
-#unzip $PORTALAPPNAME.zip
+unzip $PORTALAPPNAME.zip
 
 #########################################
 #config change
