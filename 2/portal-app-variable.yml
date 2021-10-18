@@ -1,0 +1,46 @@
+#!/bin/bash
+  
+##FILE PATH
+#COMMON_VARS_PATH=~/workspace/paasta/deployment/common/common_vars.yml
+#PORTAL_INFRA_VARS_PATH=~/workspace/paasta/deployment/portal-deployment/portal-container-infra/vars.yml
+
+#PORTAL_APP_WORKING_DIRECTORY=~/workspace/paasta/release/portal
+
+
+COMMON_VARS_PATH=~/workspace/paasta-5.6/deployment/common/common_vars.yml
+PORTAL_INFRA_VARS_PATH=~/workspace/paasta-5.6/deployment/portal-deployment-5.2.0-simplification/portal-container-infra/vars.yml
+
+PORTAL_APP_WORKING_DIRECTORY=~/workspace/paasta-5.6/deployment/portal-deployment-5.2.0-simplification/portal-container-infra
+
+
+##PORTAL VARIABLE
+USER_APP_SIZE_MB=0
+MONITORING_ENABLE=false
+
+PORTAL_ORG_NAME="portal"
+PORTAL_SPACE_NAME="system"
+PORTAL_QUOTA_NAME="portal_quota"
+PORTAL_SECURITY_GROUP_NAME="portal"
+
+MAIL_SMTP_HOST="smtp.gmail.com"
+MAIL_SMTP_PORT="465"
+MAIL_SMTP_USERNAME="paasta"
+MAIL_SMTP_PASSWORD="paasta"
+MAIL_SMTP_USEREMAIL="paas-ta@gmail.com"
+
+MONITORING_API_URL=""
+
+
+##UNCHANGE VARIABLE(if defulat install, don't change variable)
+IS_PAAS_TA_EXTERNAL_DB=false
+PAAS_TA_EXTERNAL_DB_IP=
+PAASTA_CORE_DEPLOYMENT_NAME="paasta"
+PORTAL_INFRA_DEPLOYMENT_NAME="portal-container-infra"
+PAASTA_DATABASE_INSTANCE_NAME="database"
+PORTAL_INFRA_DATABASE_NAME="infra"
+UAAC_ID="admin"
+CC_DB_NAME="cloud_controller"
+CC_DB_USER_NAME="cloud_controller"
+UAA_DB_NAME="uaa"
+UAA_DB_USER_NAME="uaa"
+UAAC_PORTAL_CLIENT_ID="portalclient"
