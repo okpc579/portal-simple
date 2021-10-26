@@ -22,8 +22,6 @@ MAIL_SMTP_USERNAME="paasta"
 MAIL_SMTP_PASSWORD="paasta"
 MAIL_SMTP_USEREMAIL="paas-ta@gmail.com"
 
-MONITORING_API_URL=""
-
 
 ##UNCHANGE VARIABLE(if defulat install, don't change variable)
 PAASTA_CORE_DEPLOYMENT_NAME="paasta"
