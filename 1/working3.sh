@@ -2,8 +2,8 @@
 
 source portal-app-variable.yml
 
-PORTALAPPNAME=portal-app-1.2.0
-PORTALAPPDOWNLOADLINK=https://nextcloud.paas-ta.org/index.php/s/Q5fRjHYBxmWrpaq/download
+PORTALAPPNAME=portal-app-1.2.1
+PORTALAPPDOWNLOADLINK=https://nextcloud.paas-ta.org/index.php/s/LmZTEiJn6NcJoiY/download
 
 #########################################
 # Portal Component Folder Name
@@ -12,7 +12,7 @@ PORTAL_COMMON_API=portal-common-api-2.2.0
 PORTAL_GATEWAY=portal-gateway-2.1.0
 PORTAL_LOG_API=portal-log-api-2.2.0
 PORTAL_REGISTRATION=portal-registration-2.1.0
-PORTAL_STORAGE_API=portal-storage-api-2.2.0
+PORTAL_STORAGE_API=portal-storage-api-2.2.1
 PORTAL_WEB_ADMIN=portal-web-admin-2.3.0
 PORTAL_WEB_USER=portal-web-user-2.3.1
 PORTAL_SSH=portal-ssh-1.0.0
@@ -61,7 +61,7 @@ UAA_ADMIN_CLIENT_SECRET=$(grep -r "uaa_client_admin_secret" $COMMON_VARS_PATH | 
 ## PORTAL DB
 if [[ ${IS_PORTAL_EXTERNAL_DB} = "false" ]]; then
         # Portal - Internal DB use
-        PORTAL_DB_IP=$(bosh vms -d portal-container-infra | grep "infra" | cut -f 4 | sed -e 's/ //g')
+        PORTAL_DB_IP=$(bosh vms -d $PORTAL_INFRA_DEPLOYMENT_NAME | grep $PORTAL_INFRA_DATABASE_NAME | cut -f 4 | sed -e 's/ //g')
         PORTAL_DB_PORT=$(grep -r "mariadb_port" $PORTAL_INFRA_VARS_PATH | cut -d ':' -f 2 | cut -d " " -f 2 | sed -e 's/ //g' | sed -e 's/\"//g')
         PORTAL_DB_USER_PASSWORD=$(grep -r "mariadb_admin_password" $PORTAL_INFRA_VARS_PATH | cut -d ':' -f 2 | cut -d " " -f 2 | sed -e 's/ //g' | sed -e 's/\"//g')
 
@@ -84,14 +84,14 @@ MONITORING_API_URL=$(grep -r "monitoring_api_url" $COMMON_VARS_PATH | cut -d ':'
 ## AP DB
 if [[ ${IS_PAAS_TA_EXTERNAL_DB} = "false" ]]; then
         # AP - Internal DB use
-        if [[ -n $(bosh is --ps -d paasta | grep "database" | grep "postgres") ]]; then
+        if [[ -n $(bosh is --ps -d $PAASTA_CORE_DEPLOYMENT_NAME | grep $PAASTA_DATABASE_INSTANCE_NAME | grep "postgres") ]]; then
                 PAASTA_DB_DRIVER=org.postgresql.Driver
                 PAASTA_DATABASE=postgresql
-        elif [[ -n $(bosh is --ps -d paasta | grep "database" | grep "pxc") ]]; then
+        elif [[ -n $(bosh is --ps -d $PAASTA_CORE_DEPLOYMENT_NAME | grep $PAASTA_DATABASE_INSTANCE_NAME | grep "pxc") ]]; then
                 PAASTA_DB_DRIVER=com.mysql.jdbc.Driver
                 PAASTA_DATABASE=mysql
         fi
-        PAASTA_DB_IP=$(bosh vms -d paasta | grep "database" | cut -f 4 | sed -e 's/ //g')
+        PAASTA_DB_IP=$(bosh vms -d $PAASTA_CORE_DEPLOYMENT_NAME | grep $PAASTA_DATABASE_INSTANCE_NAME | cut -f 4 | sed -e 's/ //g')
         PAASTA_DB_PORT=$(grep -r "paasta_database_port" $COMMON_VARS_PATH | cut -d ':' -f 2 | cut -f 1 | sed -e 's/ //g' | sed -e 's/\"//g')
 
 elif [[ ${IS_PAAS_TA_EXTERNAL_DB} = "true" ]]; then
@@ -125,7 +125,7 @@ if [[ ${IS_PORTAL_EXTERNAL_STORAGE} = "false" ]]; then
         OBJECTSTORAGE_TENANTNAME=$(grep -r "binary_storage_tenantname" $PORTAL_INFRA_VARS_PATH | cut -d ':' -f 2 | cut -d " " -f 2 | sed -e 's/ //g' | sed -e 's/\"//g')
         OBJECTSTORAGE_USERNAME=$(grep -r "binary_storage_username" $PORTAL_INFRA_VARS_PATH | cut -d ':' -f 2 | cut -d " " -f 2 | sed -e 's/ //g' | sed -e 's/\"//g')
         OBJECTSTORAGE_PASSWORD=$(grep -r "binary_storage_password" $PORTAL_INFRA_VARS_PATH | cut -d ':' -f 2 | cut -d " " -f 2 | sed -e 's/ //g' | sed -e 's/\"//g')
-        OBJECTSTORAGE_IP=$(bosh vms -d portal-container-infra | grep "infra" | cut -f 4)
+        OBJECTSTORAGE_IP=$(bosh vms -d $PORTAL_INFRA_DEPLOYMENT_NAME | grep $PORTAL_INFRA_DATABASE_NAME | cut -f 4)
         OBJECTSTORAGE_PORT=$(grep -r "binary_storage_auth_port" $PORTAL_INFRA_VARS_PATH | cut -d ':' -f 2 | cut -d " " -f 2 | sed -e 's/ //g' | sed -e 's/\"//g')
 
 elif [[ ${IS_PORTAL_EXTERNAL_STORAGE} = "true" ]]; then
@@ -149,7 +149,14 @@ UAAC_PORTAL_CLIENT_SECRET=$(grep -r "uaa_client_portal_secret" $COMMON_VARS_PATH
 CURRENTDIRCTORY=$(pwd)
 
 mkdir $PORTAL_APP_WORKING_DIRECTORY -p
-cd $PORTAL_APP_WORKING_DIRECTORY
+if [ -d $PORTAL_APP_WORKING_DIRECTORY ]; then
+        cd $PORTAL_APP_WORKING_DIRECTORY
+else
+        echo "plz check PORTAL_APP_WORKING_DIRECTORY"
+        cd $CURRENTDIRCTORY
+        return
+fi
+
 # portal-app download
 ## portal-app zip downloaded check
 if [ -e $PORTALAPPNAME.zip ]; then
@@ -159,6 +166,13 @@ else
         ## portal-app wget download
         wget --content-disposition $PORTALAPPDOWNLOADLINK
 fi
+
+if [ ! -e $PORTALAPPNAME.zip ]; then
+        echo "plz check portal app download link : "$PORTALAPPDOWNLOADLINK
+        cd $CURRENTDIRCTORY
+        return
+fi
+
 
 #########################################
 # portal-app unzip
@@ -174,7 +188,16 @@ unzip $PORTALAPPNAME.zip
 #########################################
 #config change
 
-cd $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/
+if [ -d $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME ]; then
+        cd $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME
+else
+        echo "plz check directory : " $PORTAL_APP_WORKING_DIRECTORY"/"$PORTALAPPNAME
+        cd $CURRENTDIRCTORY
+        return
+fi
+
+
+
 
 ## COMMON VARIABLE
 # DOMAIN
@@ -323,10 +346,8 @@ find $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/config -type 
 # MONITORING_ENABLE
 find $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/config -type f | xargs sed -i -e 's/<MONITORING_ENABLE>/'${MONITORING_ENABLE}'/g'
 
-#cd portal-web-user-2.3.1/config
-#sh $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/config/applyChangeConfig.sh
-#cd ../../
-#
+
+# PORTAL WEBUSER MAIN
 BEFORE_CONFIG=$PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/paas-ta-portal-webuser/assets/resources/env/config.json
 AFTER_CONFIG=$PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/config/config.json
 MAIN_JS=$PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/paas-ta-portal-webuser/main.*.js
@@ -379,14 +400,14 @@ cf bind-staging-security-group ${PORTAL_SECURITY_GROUP_NAME}
 
 
 # Portal APP push
-cf push -i 2 -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_API/manifest.yml
-cf push -i 2 -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_COMMON_API/manifest.yml
-cf push -i 2 -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_GATEWAY/manifest.yml
-cf push -i 2 -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_LOG_API/manifest.yml
-cf push -i 2 -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_REGISTRATION/manifest.yml
-cf push -i 2 -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_STORAGE_API/manifest.yml
-cf push -i 2 -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_ADMIN/manifest.yml
-cf push -i 2  -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/manifest.yml
+cf push -i $PORTAL_API_INSTANCE -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_API/manifest.yml
+cf push -i $PORTAL_COMMON_API_INSTANCE -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_COMMON_API/manifest.yml
+cf push -i $PORTAL_GATEWAY_INSTANCE -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_GATEWAY/manifest.yml
+cf push -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_LOG_API/manifest.yml
+cf push -i $PORTAL_REGISTRATION_INSTANCE -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_REGISTRATION/manifest.yml
+cf push -i $PORTAL_STORAGE_API_INSTANCE -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_STORAGE_API/manifest.yml
+cf push -i $PORTAL_WEB_ADMIN_INSTANCE -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_ADMIN/manifest.yml
+cf push -i $PORTAL_WEB_USER_INSTANCE -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_WEB_USER/manifest.yml
 cf push -f $PORTAL_APP_WORKING_DIRECTORY/$PORTALAPPNAME/$PORTAL_SSH/manifest.yml
 
 
@@ -422,7 +443,4 @@ cf restart portal-log-api
 
 cf apps
 
-
-
 cd $CURRENTDIRCTORY
-
